@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Typing with Single Cursor (Final Fix)</title>
+  <style>
+    body {
+      margin: 0;
+      background: #0e0e12;
+      font-family: 'Fira Code', monospace;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .card {
+      background: #1e1e24;
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: #d4d4d4;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+      min-width: 280px;
+      max-width: 400px;
+      white-space: pre-wrap;
+      font-size: 14px;
+      position: relative;
+    }
+
+    .label {
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: #ccc;
+    }
+
+    .content {
+      user-select: none;
+      caret-color: transparent;
+      outline: none;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1em;
+      background: #d4d4d4;
+      animation: blink 1s step-end infinite;
+      vertical-align: text-bottom;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    .keyword { color: #569cd6; }
+    .string { color: #ce9178; }
+    .function { color: #dcdcaa; }
+    .selector { color: #d7ba7d; }
+    .property { color: #9cdcfe; }
+    .value { color: #c586c0; }
+    .comment { color: #6a9955; }
+  </style>
+</head>
+<body>
+
+  <div class="card" id="html">
+    <div class="label">🔧 HTML</div>
+    <div class="content" tabindex="-1" role="presentation"></div>
+  </div>
+
+  <div class="card" id="scss">
+    <div class="label">🎨 SCSS</div>
+    <div class="content" tabindex="-1" role="presentation"></div>
+  </div>
+
+  <div class="card" id="js">
+    <div class="label">⚙️ JS</div>
+    <div class="content" tabindex="-1" role="presentation"></div>
+  </div>
+
+  <script>
+    const codeData = {
+      html: [
+        '<span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"rect"</span><span class="keyword">&gt;&lt;/div&gt;</span>'
+      ],
+      scss: [
+        '<span class="selector">.rect</span> {',
+        '  <span class="property">background</span>: <span class="value">linear-gradient(</span>',
+        '    <span class="value">-119deg</span>,',
+        '    <span class="value">$gray 0%</span>,',
+        '    <span class="value">$dark-gray 100%</span>',
+        '  );',
+        '}'
+      ],
+      js: [
+        '<span class="keyword">var</span> colors = [',
+        '  <span class="string">"#74B087"</span>, <span class="string">"#DE7300"</span>, <span class="string">"#74B087"</span>',
+        '];',
+        '',
+        '<span class="keyword">function</span> <span class="function">animate</span>() {',
+        '  <span class="comment">// animation logic</span>',
+        '}'
+      ]
+    };
+
+    function typeWithCursor(containerId, lines, lineDelay = 800, charDelay = 80) {
+      const target = document.querySelector(`#${containerId} .content`);
+
+      target.innerHTML = ''; // 내용 초기화
+
+      const cursor = document.createElement('span');
+      cursor.className = 'cursor';
+      target.appendChild(cursor);
+
+      let lineIndex = 0;
+
+      function typeLine() {
+        if (lineIndex >= lines.length) return;
+
+        const htmlLine = lines[lineIndex];
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = htmlLine;
+
+        const childNodes = Array.from(tempDiv.childNodes);
+        let childIndex = 0;
+
+        function typeChild() {
+          if (childIndex >= childNodes.length) {
+            lineIndex++;
+            setTimeout(typeLine, lineDelay);
+            return;
+          }
+
+          const node = childNodes[childIndex];
+          const span = document.createElement("span");
+          span.className = node.className || '';
+
+          const text = node.textContent;
+          let charIndex = 0;
+
+          function typeChar() {
+            if (charIndex < text.length) {
+              span.textContent += text[charIndex];
+              charIndex++;
+              target.insertBefore(span, cursor);
+              setTimeout(typeChar, charDelay);
+            } else {
+              target.insertBefore(span, cursor);
+              childIndex++;
+              setTimeout(typeChild, charDelay);
+            }
+          }
+
+          typeChar();
+        }
+
+        typeChild();
+      }
+
+      typeLine();
+    }
+
+    typeWithCursor('html', codeData.html, 800, 80);
+    typeWithCursor('scss', codeData.scss, 800, 80);
+    typeWithCursor('js', codeData.js, 800, 80);
+  </script>
+</body>
+</html>
