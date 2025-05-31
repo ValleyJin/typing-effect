@@ -180,7 +180,4 @@ function typeWithCursor(containerId, lines, lineDelay = 800, charDelay = 80) {
 2. 기본 텍스트 커서는 완전히 숨겨지고, CSS 커서만 보임
 3. 코드와 커서의 동기화가 자연스럽게 이루어짐
 
----
-
-담당자: (인수인계자 이름)
-작성일: 2025-05-31
+--
